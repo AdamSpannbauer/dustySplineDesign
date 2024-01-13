@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
-/* globals SVG */
 import { genNoisySpline } from './genSplines.js';
+import { positionCanvas } from './utils.js';
 
 // Set two of these three and leave other null
 // if canvasH and canvasW both non-null then aspectRatio is ignored
@@ -8,6 +8,7 @@ import { genNoisySpline } from './genSplines.js';
 const aspectRatio = 12 / 9; // assumed to be w / h
 let canvasW = 512;
 let canvasH = null;
+let cnv;
 
 // Display mode (either "animate", "top", or "side")
 // Use keys 1, 2, 3 while sketch is running to toggle between modes
@@ -23,37 +24,45 @@ const nSplines = 64;
 const nControlPoints = 5;
 const nSplinePts = 128;
 
-const nSclX = 0.01;
-const nSclY = 0.2;
-const nSize = 200;
+let nSclX = 0.01;
+let nSclY = 0.2;
+let nSize = 200;
 
 // Spline storage
 const allSplinePtsXYZ = [];
 
 window.setup = () => {
+  const params = getURLParams();
+
   if (canvasW === null) {
     canvasW = round(aspectRatio * canvasH);
   } else if (canvasH === null) {
     canvasH = round(canvasW / aspectRatio);
   }
 
-  createCanvas(canvasW, canvasH);
-  pixelDensity(1);
+  if (params.D === '3') {
+    cnv = createCanvas(canvasW, canvasH, WEBGL);
+  } else {
+    cnv = createCanvas(canvasW, canvasH);
+    pixelDensity(1);
+  }
+  positionCanvas(cnv);
 
   // Repeatability
   if (randSeed !== null) {
     noiseSeed(randSeed);
     randomSeed(randSeed);
-  } else {
-    const params = getURLParams();
-    if (params.randSeed !== undefined) {
-      noiseSeed(params.randSeed);
-      randomSeed(params.randSeed);
-    }
+  } else if (params.randSeed !== undefined) {
+    noiseSeed(params.randSeed);
+    randomSeed(params.randSeed);
   }
 
   // Make some splines
   console.log(`Generating ${nSplines} splines (${nSplinePts} vertices per)`);
+  if (params.nSclX !== undefined) nSclX = parseFloat(params.nSclX);
+  if (params.nSclY !== undefined) nSclY = parseFloat(params.nSclY);
+  if (params.nSize !== undefined) nSize = parseFloat(params.nSize);
+
   for (let i = 0; i < nSplines; i += 1) {
     const splinePtsXYZ = genNoisySpline(i, nControlPoints, nSplinePts, nSclX, nSclY, nSize);
     allSplinePtsXYZ.push(splinePtsXYZ);
@@ -65,7 +74,19 @@ window.draw = () => {
   stroke(0);
   noFill();
 
-  if (displayMode === 'side') {
+  const params = getURLParams();
+  if (params.D === '3') {
+    scale(0.7, 0.7);
+    translate(-width / 2, -height / 2);
+    allSplinePtsXYZ.forEach((splinePtsXYZ) => {
+      splinePtsXYZ.forEach(([x, y, z]) => {
+        translate(x * 10, y, z);
+        sphere(3, 3);
+        translate(-x * 10, -y, -z);
+      });
+    });
+    orbitControl(5);
+  } else if (displayMode === 'side') {
     translate(width / 2, height / 2);
     scale(0.8, 0.8);
     translate(-width / 2, -height / 2);
