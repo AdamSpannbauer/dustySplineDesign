@@ -44,6 +44,12 @@ window.setup = () => {
   if (randSeed !== null) {
     noiseSeed(randSeed);
     randomSeed(randSeed);
+  } else {
+    const params = getURLParams();
+    if (params.randSeed !== undefined) {
+      noiseSeed(params.randSeed);
+      randomSeed(params.randSeed);
+    }
   }
 
   // Make some splines
