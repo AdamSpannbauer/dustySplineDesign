@@ -15,8 +15,8 @@ const displayModes = ['side', 'animate', 'top'];
 let displayMode = displayModes[1];
 
 // Use in case of repeatability (null otherwise)
-const randSeed = 42;
-// const randSeed = null;
+// const randSeed = 42;
+const randSeed = null;
 
 // Spline params
 const nSplines = 64;
