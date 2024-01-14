@@ -110,8 +110,8 @@ window.draw = () => {
 
     const splineI = frameCount % allSplinePtsXYZ.length;
     beginShape();
-    // eslint-disable-next-line no-unused-vars
     const splinePts = allSplinePtsXYZ[splineI];
+    // eslint-disable-next-line no-unused-vars
     splinePts.forEach(([x, y, z], i) => {
       if (i === 0) vertex(y, 0);
       vertex(y, z);
@@ -151,5 +151,7 @@ window.keyTyped = () => {
     displayMode = 'animate';
   } else if (key === '3') {
     displayMode = 'top';
+  } else if (key === 'd') {
+    save(allSplinePtsXYZ, 'splineData.json');
   }
 };
