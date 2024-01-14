@@ -1,3 +1,4 @@
+/* globals SVG */
 /* eslint-disable no-console */
 import { genNoisySpline } from './genSplines.js';
 import { positionCanvas } from './utils.js';
@@ -42,6 +43,8 @@ window.setup = () => {
 
   if (params.D === '3') {
     cnv = createCanvas(canvasW, canvasH, WEBGL);
+  } else if (params.D === 'saveSVG') {
+    cnv = createCanvas(canvasW, canvasH, SVG);
   } else {
     cnv = createCanvas(canvasW, canvasH);
     pixelDensity(1);
@@ -101,7 +104,7 @@ window.draw = () => {
       });
       endShape();
     });
-  } else if (displayMode === 'animate') {
+  } else if (displayMode === 'animate' || params.D === 'saveSVG') {
     translate(width / 2, height / 2);
     scale(0.8, 0.8);
     translate(-width / 2, -height / 2);
@@ -118,6 +121,8 @@ window.draw = () => {
       if (i === splinePts.length - 1) vertex(y, 0);
     });
     endShape(CLOSE);
+
+    if (frameCount <= allSplinePtsXYZ.length - 1) save(`spline${frameCount}.svg`);
   } else if (displayMode === 'top') {
     loadPixels();
     for (let x = 0; x < width; x += 1) {
